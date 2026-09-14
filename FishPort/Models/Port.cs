@@ -10,16 +10,22 @@ namespace FishPort.Models
     {
         //自動連番で付与されるID
         public int Id { get; set; }
+        [Display(Name = "エリア")]
+        [Required(ErrorMessage = "エリアを選択してください。")]
         public int AreaId { get; set; } // 外部キーとしてのAreaIdプロパティを追加
 
-        [Required]
+        [Display(Name = "漁港名")]
+        [Required(ErrorMessage = "漁港名を入力してください。")]
         [StringLength(20)]
         public string PortName { get; set; } = string.Empty;
-        [Required]
+        [Display(Name = "住所")]
+        [Required(ErrorMessage = "住所を入力してください。")]
         [StringLength(200)]
         public string Address { get; set; } = string.Empty;
-
-        public string? Description { get; set; } // 追加の説明フィールドを追加（必要に応じて）
+        [Display(Name = "説明")]
+        [Required(ErrorMessage = "説明を入力してください。")]
+        [StringLength(500)]
+        public string Description { get; set; } = string.Empty; // 追加の説明フィールドを追加（必要に応じて）
 
         //ナビゲーションプロパティ
         public Area? Area { get; set; }

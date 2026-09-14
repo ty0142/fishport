@@ -1,6 +1,7 @@
 
 using FishPort.Data;
 using FishPort.Models;
+using FishPort.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,7 @@ public class PortsController : Controller
     }
 
     // GET: PORTS
-    public async Task<IActionResult> Index()    
+    public async Task<IActionResult> Index()
     {
         return View(await _context.Ports.ToListAsync());
     }
@@ -23,28 +24,85 @@ public class PortsController : Controller
     // GET: PORTS/Details/5
     public async Task<IActionResult> Details(int? id)
     {
-        // ビュー側の表示用として、各マスターの「名称（Name）」をViewDataに格納
-        ViewData["PrefectureId"] = new SelectList(await _context.Prefectures.ToListAsync(), "Id", "PrefectureName");
-        ViewData["AreaId"] = new SelectList(await _context.Areas.ToListAsync(), "Id", "AreaName");
+        //// ビュー側の表示用として、各マスターの「名称（Name）」をViewDataに格納
+        //ViewData["AreaId"] = new SelectList(await _context.Areas.ToListAsync(), "Id", "AreaName");
 
         if (id == null)
         {
             return NotFound();
         }
 
-        var port = await _context.Ports
-            .FirstOrDefaultAsync(m => m.Id == id);
-        if (port == null)
+        var currentPortId = id.Value;
+
+        var portDetails = await _context.Ports
+              .Where(p => p.Id == currentPortId)
+              .Join(
+              _context.Areas,
+              port => port.AreaId,
+              area => area.Id,
+              (port, area) => new { port, area }
+              )
+              .Join(
+              _context.Prefectures,
+              x => x.area.PrefectureId,
+              prefecture => prefecture.Id,
+              (x, prefecture) => new PortDetailsViewModel
+              {
+                  Port = x.port,
+                  AreaName = x.area.AreaName,
+                  PrefectureName = prefecture.PrefectureName
+              }
+              )
+              .FirstOrDefaultAsync();
+
+        var commentList = await _context.Comments
+              .Where(c => c.PortId == currentPortId)
+              .Join(
+              _context.Users,
+              comment => comment.UserId,
+              user => user.Id,
+              (comment, user) => new CommentViewModel
+              {
+                  Id = comment.Id,
+                  NickName = user.NickName,
+                  CommentText = comment.CommentText,
+                  CreatedAt = comment.CreatedAt
+              }
+              )
+             .OrderByDescending(c => c.CreatedAt)
+             .ToListAsync();
+        
+        if (portDetails == null)
         {
             return NotFound();
         }
 
-        return View(port);
+        portDetails.Comments = commentList;
+        return View(portDetails);
     }
 
     // GET: PORTS/Create
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        // 都道府県一覧
+        ViewData["PrefectureId"] = new SelectList(
+            await _context.Prefectures
+                .OrderBy(p => p.PrefectureName)
+                .ToListAsync(),
+            "Id",
+            "PrefectureName");
+
+        // Area一覧（JavaScript用）
+        ViewBag.Areas = await _context.Areas
+            .OrderBy(a => a.AreaName)
+            .Select(a => new
+            {
+                a.Id,
+                a.AreaName,
+                a.PrefectureId
+            })
+            .ToListAsync();
+
         return View();
     }
 
@@ -53,14 +111,24 @@ public class PortsController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,AreaId,PortName,Description,Area,Comments")] Port port)
+    public async Task<IActionResult> Create([Bind("AreaId,PortName,Address,Description")] Port port)
     {
+        
         if (ModelState.IsValid)
         {
             _context.Add(port);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        // ビュー側の表示用として、各マスターの「名称（Name）」をViewDataに格納
+        ViewData["AreaId"] = new SelectList(
+            await _context.Areas
+            .OrderBy(a => a.AreaName)
+            .ToListAsync(),
+            "Id",
+            "AreaName",
+            port.AreaId);
+
         return View(port);
     }
 
@@ -85,7 +153,7 @@ public class PortsController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,AreaId,PortName,Description,Area,Comments")] Port port)
+    public async Task<IActionResult> Edit(int? id, [Bind("AreaId,PortName,Address,Description")] Port port)
     {
         if (id != port.Id)
         {
@@ -152,4 +220,6 @@ public class PortsController : Controller
     {
         return _context.Ports.Any(e => e.Id == id);
     }
+
+
 }

@@ -37,7 +37,7 @@ namespace FishPort.Models
                         new Area() { PrefectureId = 40, AreaName = "遠賀・芦屋エリア" },
                         new Area() { PrefectureId = 40, AreaName = "有明海エリア" },
                         new Area() { PrefectureId = 41, AreaName = "唐津エリア" },
-                         new Area() { PrefectureId = 41, AreaName = "呼子エリア" },
+                        new Area() { PrefectureId = 41, AreaName = "呼子エリア" },
                         new Area() { PrefectureId = 41, AreaName = "伊万里エリア" },
                         new Area() { PrefectureId = 41, AreaName = "有明海エリア" }
                     );

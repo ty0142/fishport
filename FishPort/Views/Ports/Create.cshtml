@@ -4,7 +4,100 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
+<form asp-action="Create">
+<div class="mb-3">
+    <label class="form-label">都道府県</label>
+
+    <select id="prefectureSelect"
+            asp-items="ViewBag.PrefectureId"
+            class="form-select">
+
+        <option value="">
+            都道府県を選択してください
+        </option>
+
+    </select>
+</div>
+<div class="mb-3">
+    <label asp-for="AreaId" class="form-label"></label>
+
+    <select id="areaSelect"
+            asp-for="AreaId"
+            class="form-select">
+
+        <option value="">
+            先に都道府県を選択してください
+        </option>
+
+    </select>
+
+    <span asp-validation-for="AreaId"
+          class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Address" class="form-label"></label>
+    <input asp-for="Address" class="form-control" />
+    <span asp-validation-for="Address" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="PortName" class="form-label"></label>
+    <input asp-for="PortName" class="form-control" />
+    <span asp-validation-for="PortName" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Description" class="form-label"></label>
+
+    <textarea asp-for="Description"
+              class="form-control"
+              rows="6"></textarea>
+
+    <span asp-validation-for="Description"
+          class="text-danger"></span>
+</div>
+<div class="mt-4">
+    <input type="submit"
+           value="登録"
+           class="btn btn-primary" />
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        戻る
+    </a>
+</div>
+</form>
+@section Scripts
+{
+    <script>
+         const areas = @Html.Raw(
+                                    System.Text.Json.JsonSerializer.Serialize(ViewBag.Areas)
+                    );
+
+        console.log(areas);
+          const prefectureSelect = document.getElementById("prefectureSelect");
+          const areaSelect = document.getElementById("areaSelect");
+                  prefectureSelect.addEventListener("change", function () {
+
+                const filteredAreas = areas.filter(area =>
+            area.PrefectureId == this.value
+        );
+        areaSelect.innerHTML = "";
+                filteredAreas.forEach(area => {
+                       const option = document.createElement("option");
+            option.value = area.Id;
+        option.textContent = area.AreaName;
+        areaSelect.appendChild(option);
+        console.log(option);
+        });
+        console.log(filteredAreas);
+        });
+        
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+@* <h1>Create</h1>
 
 <h4>Port</h4>
 <hr />
@@ -15,11 +108,13 @@
 
             <div class="form-group">
                 <label asp-for="AreaId" class="control-label"></label>
+                <select asp-for="AreaId" class="form-control" asp-items="ViewBag.AreaId"></select>
                 <input asp-for="AreaId" class="form-control" />
                 <span asp-validation-for="AreaId" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
+            
+<div class="form-group">
                 <label asp-for="PortName" class="control-label"></label>
                 <input asp-for="PortName" class="form-control" />
                 <span asp-validation-for="PortName" class="text-danger"></span>
@@ -51,4 +146,4 @@
 
 <div>
     <a asp-action="Index">Back to List</a>
-</div>
+</div> *@
