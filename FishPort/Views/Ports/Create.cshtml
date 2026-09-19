@@ -68,31 +68,16 @@
 @section Scripts
 {
     <script>
+        const currentAreaId = null;
          const areas = @Html.Raw(
                                     System.Text.Json.JsonSerializer.Serialize(ViewBag.Areas)
                     );
 
         console.log(areas);
           const prefectureSelect = document.getElementById("prefectureSelect");
-          const areaSelect = document.getElementById("areaSelect");
-                  prefectureSelect.addEventListener("change", function () {
-
-                const filteredAreas = areas.filter(area =>
-            area.PrefectureId == this.value
-        );
-        areaSelect.innerHTML = "";
-                filteredAreas.forEach(area => {
-                       const option = document.createElement("option");
-            option.value = area.Id;
-        option.textContent = area.AreaName;
-        areaSelect.appendChild(option);
-        console.log(option);
-        });
-        console.log(filteredAreas);
-        });
-        
+          const areaSelect = document.getElementById("areaSelect");            
     </script>
-
+    <script src="~/js/prefectureAreaSelect.js"></script>
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }

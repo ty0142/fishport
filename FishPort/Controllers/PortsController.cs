@@ -145,6 +145,32 @@ public class PortsController : Controller
         {
             return NotFound();
         }
+        // 現在のAreaを取得
+        var area = await _context.Areas.FindAsync(port.AreaId);
+
+        // 現在のPrefectureId
+        var prefectureId = area?.PrefectureId;
+
+        // 都道府県一覧
+        ViewData["PrefectureId"] = new SelectList(
+            await _context.Prefectures
+                .OrderBy(p => p.PrefectureName)
+                .ToListAsync(),
+            "Id",
+            "PrefectureName",
+            prefectureId);
+
+        // Area一覧（JavaScript用）
+        ViewBag.Areas = await _context.Areas
+            .OrderBy(a => a.AreaName)
+            .Select(a => new
+            {
+                a.Id,
+                a.AreaName,
+                a.PrefectureId
+            })
+            .ToListAsync();
+
         return View(port);
     }
 

@@ -4,51 +4,80 @@
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
+<form asp-action="Edit">
+    <div class="mb-3">
+        <label class="form-label">都道府県</label>
 
-<h4>Port</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="AreaId" class="control-label"></label>
-                <input asp-for="AreaId" class="form-control" />
-                <span asp-validation-for="AreaId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PortName" class="control-label"></label>
-                <input asp-for="PortName" class="form-control" />
-                <span asp-validation-for="PortName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Area" class="control-label"></label>
-                <input asp-for="Area" class="form-control" />
-                <span asp-validation-for="Area" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Comments" class="control-label"></label>
-                <input asp-for="Comments" class="form-control" />
-                <span asp-validation-for="Comments" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        <select id="prefectureSelect"
+                asp-items="ViewBag.PrefectureId"
+                class="form-select">
+
+            <option value="">
+                都道府県を選択してください
+            </option>
+
+        </select>
     </div>
-</div>
+    <div class="mb-3">
+        <label asp-for="AreaId" class="form-label"></label>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+        <select id="areaSelect"
+                asp-for="AreaId"
+                class="form-select">
 
+            <option value="">
+                先に都道府県を選択してください
+            </option>
+
+        </select>
+
+        <span asp-validation-for="AreaId"
+              class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Address" class="form-label"></label>
+        <input asp-for="Address" class="form-control" />
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="PortName" class="form-label"></label>
+        <input asp-for="PortName" class="form-control" />
+        <span asp-validation-for="PortName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+
+        <textarea asp-for="Description"
+                  class="form-control"
+                  rows="6"></textarea>
+
+        <span asp-validation-for="Description"
+              class="text-danger"></span>
+    </div>
+    <div class="mt-4">
+        <input type="submit"
+               value="登録"
+               class="btn btn-primary" />
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            戻る
+        </a>
+    </div>
+</form>
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        const currentAreaId = @Model.AreaId;
+
+        const areas = @Html.Raw(
+                    System.Text.Json.JsonSerializer.Serialize(ViewBag.Areas)
+                    );
+
+        const prefectureSelect = document.getElementById("prefectureSelect");
+        const areaSelect = document.getElementById("areaSelect");
+    </script>
+    <script src="~/js/prefectureAreaSelect.js"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }  
 }
